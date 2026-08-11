@@ -1,3 +1,4 @@
+import logging
 import sqlite3
 
 from fastapi import APIRouter, HTTPException
@@ -22,7 +23,9 @@ def chat(payload: ChatMessageRequest) -> ChatMessageResponse:
             payload.session_id, payload.conversation_id
         )
 
-        chat_service.save_message(conversation_id, "user", payload.content)
+        user_message = chat_service.save_message(
+            conversation_id, "user", payload.content
+        )
 
         history = chat_service.get_conversation_history(conversation_id)
 
@@ -36,11 +39,15 @@ def chat(payload: ChatMessageRequest) -> ChatMessageResponse:
             status_code=500, detail="Failed to persist chat message"
         ) from exc
     except genai_errors.APIError as exc:
+        chat_service.delete_message(user_message["id"])
+        logging.error(f"LLM Error: {exc}", exc_info=True)
         raise HTTPException(
             status_code=503,
             detail="The AI service is temporarily unavailable. Please try again.",
         ) from exc
     except RuntimeError as exc:
+        chat_service.delete_message(user_message["id"])
+        logging.error(f"LLM Error: {exc}", exc_info=True)
         raise HTTPException(
             status_code=500, detail="The AI service is not configured."
         ) from exc

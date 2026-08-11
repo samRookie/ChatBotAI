@@ -5,6 +5,8 @@ Gemini model and returns the generated text. No retrieval or RAG logic lives
 here.
 """
 
+import logging
+
 from google import genai
 from google.genai import errors as genai_errors
 from tenacity import (
@@ -33,14 +35,27 @@ _ROLE_MAP = {
 }
 
 
-def _format_contents(messages: list[dict]) -> list[dict]:
-    """Map DB roles ('user'/'assistant') to Gemini roles ('user'/'model')."""
-    contents = []
+def _sanitize_history(messages: list[dict]) -> list[dict]:
+    """Map DB messages to Gemini contents with strictly alternating roles.
+
+    Consecutive same-role messages are merged into a single message and any
+    leading non-user messages are dropped so the array always starts with a
+    'user' turn, satisfying Gemini's alternation requirement.
+    """
+    contents: list[dict] = []
     for message in messages:
         role = _ROLE_MAP.get(message.get("role", "user"), "user")
-        contents.append(
-            {"role": role, "parts": [{"text": message.get("content", "")}]}
-        )
+        text = message.get("content", "")
+        if not text:
+            continue
+        if contents and contents[-1]["role"] == role:
+            contents[-1]["parts"][0]["text"] += f"\n{text}"
+        else:
+            contents.append({"role": role, "parts": [{"text": text}]})
+
+    while contents and contents[0]["role"] != "user":
+        contents.pop(0)
+
     return contents
 
 
@@ -73,4 +88,11 @@ def get_ai_response(mode: str, messages: list[dict]) -> str:
     if mode != "general":
         raise ValueError(f"Unsupported mode: {mode}")
 
-    return _generate(_format_contents(messages))
+    try:
+        return _generate(_sanitize_history(messages))
+    except genai_errors.APIError as exc:
+        logging.error(f"LLM Error: {exc}", exc_info=True)
+        raise
+    except RuntimeError as exc:
+        logging.error(f"LLM Error: {exc}", exc_info=True)
+        raise

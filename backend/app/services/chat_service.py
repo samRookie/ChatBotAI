@@ -56,6 +56,15 @@ def save_message(conversation_id: str, role: str, content: str) -> dict:
     return message
 
 
+def delete_message(message_id: str) -> None:
+    conn = get_connection()
+    try:
+        conn.execute("DELETE FROM messages WHERE id = ?", (message_id,))
+        conn.commit()
+    finally:
+        conn.close()
+
+
 def get_conversation_history(conversation_id: str, limit: int = 50) -> list[dict]:
     conn = get_connection()
     try:
