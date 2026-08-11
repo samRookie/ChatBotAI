@@ -17,7 +17,7 @@ export default function ChatInterface() {
     setIsLoading(true)
 
     try {
-      const data = await sendMessage(content, 'user')
+      const data = await sendMessage(content)
       setMessages((prev) => [
         ...prev,
         { role: 'assistant', content: data.message.content },

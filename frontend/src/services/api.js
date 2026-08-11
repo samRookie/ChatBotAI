@@ -2,7 +2,7 @@ const SESSION_ID = 'stage1-demo-session'
 
 let currentConversationId = crypto.randomUUID()
 
-export async function sendMessage(content, role = 'user') {
+export async function sendMessage(content) {
   const res = await fetch('/api/v1/chat', {
     method: 'POST',
     headers: {

@@ -1,0 +1,42 @@
+# Environments & Secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Backend (Python / FastAPI)
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.venv/
+env/
+ENV/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Database (SQLite)
+*.db
+*.sqlite
+*.sqlite3
+db.sqlite3-journal
+chatbot.db
+
+# Frontend (Node / React / Vite)
+node_modules/
+frontend/node_modules/
+dist/
+build/
+.vite/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.oxlintrc.json
+
+# OS & IDE Files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
