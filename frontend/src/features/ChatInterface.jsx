@@ -1,12 +1,42 @@
 import { useEffect, useRef, useState } from 'react'
 import MessageBubble from '../components/MessageBubble'
 import ChatInput from '../components/ChatInput'
-import { sendMessage } from '../services/api'
+import { sendMessage, fetchHistory } from '../services/api'
+
+const CONVERSATION_KEY = 'chatbot_conversation_id'
+const SESSION_KEY = 'chatbot_session_id'
+
+function getOrCreateStoredId(key) {
+  let id = localStorage.getItem(key)
+  if (!id) {
+    id = crypto.randomUUID()
+    localStorage.setItem(key, id)
+  }
+  return id
+}
 
 export default function ChatInterface() {
   const [messages, setMessages] = useState([])
   const [isLoading, setIsLoading] = useState(false)
   const bottomRef = useRef(null)
+  const [conversationId] = useState(() => getOrCreateStoredId(CONVERSATION_KEY))
+  const [sessionId] = useState(() => getOrCreateStoredId(SESSION_KEY))
+
+  useEffect(() => {
+    let active = true
+
+    fetchHistory(conversationId)
+      .then((data) => {
+        if (active && Array.isArray(data) && data.length > 0) {
+          setMessages(data)
+        }
+      })
+      .catch(() => {})
+
+    return () => {
+      active = false
+    }
+  }, [conversationId])
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -17,7 +47,7 @@ export default function ChatInterface() {
     setIsLoading(true)
 
     try {
-      const data = await sendMessage(content)
+      const data = await sendMessage(content, sessionId, conversationId)
       setMessages((prev) => [
         ...prev,
         { role: 'assistant', content: data.message.content },

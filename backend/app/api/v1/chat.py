@@ -10,6 +10,11 @@ from app.services.llm_router import get_ai_response
 router = APIRouter()
 
 
+@router.get("/{conversation_id}", response_model=list[MessageItem])
+def get_messages(conversation_id: str) -> list[MessageItem]:
+    return chat_service.get_conversation_history(conversation_id)
+
+
 @router.post("/", response_model=ChatMessageResponse)
 def chat(payload: ChatMessageRequest) -> ChatMessageResponse:
     try:
