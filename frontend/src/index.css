@@ -1,1 +1,66 @@
 @import "tailwindcss";
+
+@theme {
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  --color-surface-lowest: #0e0e0e;
+  --color-surface-low: #16161a;
+  --color-surface-base: #141313;
+  --color-surface-container: #201f1f;
+  --color-surface-high: #2a2a2a;
+  --color-surface-highest: #353434;
+  --color-surface-variant: #353434;
+
+  --color-brand-primary: #ffffff;
+  --color-brand-secondary: #c6c5cf;
+  --color-brand-accent: #3b82f6;
+
+  --color-text-main: #ededed;
+  --color-text-muted: #8e9192;
+  --color-text-dim: #71717a;
+
+  --color-border-subtle: #27272a;
+  --color-border-hover: #3f3f46;
+}
+
+:root {
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #141313;
+  color: #ededed;
+  font-family: 'JetBrains Mono', monospace;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom Scrollbar for IDE / Technical UI */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0e0e0e;
+}
+::-webkit-scrollbar-thumb {
+  background: #27272a;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #3f3f46;
+}
+
+/* Subtle Technical Grid Background */
+.bg-tech-grid {
+  background-image: radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.05) 1px, transparent 0);
+  background-size: 24px 24px;
+}
+
+/* Selection */
+::selection {
+  background-color: #3b82f6;
+  color: #ffffff;
+}
