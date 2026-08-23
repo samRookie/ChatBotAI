@@ -10,7 +10,9 @@ def _utc_now() -> str:
 
 
 def ensure_conversation_exists(
-    session_id: str, conversation_id: str
+    session_id: str,
+    conversation_id: str,
+    project_id: str | None = None,
 ) -> str:
     if not session_id:
         session_id = uuid.uuid4().hex
@@ -25,14 +27,15 @@ def ensure_conversation_exists(
             (session_id, "owner", now),
         )
         conn.execute(
-            "INSERT OR IGNORE INTO conversations (id, session_id, created_at) VALUES (?, ?, ?)",
-            (conversation_id, session_id, now),
+            "INSERT OR IGNORE INTO conversations (id, session_id, project_id, created_at) VALUES (?, ?, ?, ?)",
+            (conversation_id, session_id, project_id, now),
         )
         conn.commit()
     finally:
         conn.close()
 
     return conversation_id
+
 
 
 def save_message(conversation_id: str, role: str, content: str) -> dict:
